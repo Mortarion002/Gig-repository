@@ -137,3 +137,67 @@ export const acceptTask = async (
     res.status(500).json({ error: "Failed to accept gig" });
   }
 };
+
+export const getMyTasks = async (
+  req: AuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const providerId = req.user?.userId;
+
+    if (!providerId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    // Fetch tasks assigned to this provider that are currently IN_PROGRESS or ASSIGNED
+    const tasks = await prisma.task.findMany({
+      where: {
+        providerId: providerId,
+        status: "ASSIGNED",
+      },
+      // Include the client info so the provider knows who they are helping
+      include: {
+        client: { select: { firstName: true, phone: true } },
+      },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    res.status(200).json({ tasks });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch your gigs" });
+  }
+};
+
+export const completeTask = async (
+  req: AuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params as { id: string };
+    const providerId = req.user?.userId;
+
+    // Ensure the provider only completes their OWN assigned tasks
+    const updatedTask = await prisma.task.updateMany({
+      where: {
+        id: id,
+        providerId: providerId,
+        status: "ASSIGNED",
+      },
+      data: {
+        status: "COMPLETED",
+      },
+    });
+
+    if (updatedTask.count === 0) {
+      res.status(400).json({ error: "Task not found or not assigned to you." });
+      return;
+    }
+
+    res.status(200).json({ message: "Task marked as completed! Great job." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to complete task" });
+  }
+};
