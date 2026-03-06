@@ -1,0 +1,52 @@
+# =========================
+# Operating System Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Node / Dependencies
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# =========================
+# Environment Variables (CRITICAL)
+# =========================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+
+# =========================
+# Backend (Express / TypeScript)
+# =========================
+backend/dist/
+backend/build/
+coverage/
+
+# =========================
+# Web Client (Next.js)
+# =========================
+web-client/.next/
+web-client/out/
+web-client/build/
+web-client/.vercel/
+# Next.js environment files just in case
+web-client/.env*.local
+
+# =========================
+# Mobile Client (Expo / React Native)
+# =========================
+mobile-client/.expo/
+mobile-client/dist/
+mobile-client/web-build/
+# Ignore native folders if relying purely on Expo Managed Workflow
+# mobile-client/ios/ 
+# mobile-client/android/
