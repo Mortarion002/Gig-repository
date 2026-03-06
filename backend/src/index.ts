@@ -30,7 +30,7 @@ initSocketServer(httpServer);
 
 // Use httpServer.listen instead of app.listen
 connectRedis().then(() => {
-  httpServer.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
+  httpServer.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
   });
 }).catch(console.error);

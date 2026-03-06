@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 
 // NOTE: 10.0.2.2 is the localhost alias for Android Emulators. 
 // If you are testing on a physical device, replace this with your computer's local IPv4 address (e.g., 192.168.1.x)
-const API_URL = 'http://localhost:4000/api';
+const API_URL = 'http://192.168.167.78:4000/api';
 
 const apiClient = axios.create({
   baseURL: API_URL,
