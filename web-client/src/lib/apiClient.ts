@@ -7,10 +7,10 @@ interface FetchOptions extends RequestInit {
 export async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
   
-  const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
+const headers: Record<string, string> = {
+  'Content-Type': 'application/json',
+  ...(options.headers as Record<string, string>),
+};
 
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('token');

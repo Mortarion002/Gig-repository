@@ -18,7 +18,7 @@ export default function LoginPage() {
         setError('');
 
         try {
-            const response = await apiFetch<{ token: string; user: any }>('/api/auth/login', {
+            const response = await apiFetch<{ token: string; user: { id: string; email: string; firstName: string } }>('/api/auth/login', {
                 method: 'POST',
                 body: JSON.stringify({ email, password }),
             });
@@ -28,8 +28,8 @@ export default function LoginPage() {
                 localStorage.setItem('user', JSON.stringify(response.user));
                 router.push('/dashboard');
             }
-        } catch (err: any) {
-            setError(err.message || 'Failed to login');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Failed to login');
         } finally {
             setLoading(false);
         }
@@ -110,7 +110,7 @@ export default function LoginPage() {
                     </div>
 
                     <div className="text-sm text-center font-medium text-gray-500">
-                        Don't have an account?{' '}
+                        Don&apos;t have an account?{' '}
                         <Link href="/register" className="text-blue-600 hover:text-blue-500 hover:underline transition-colors">
                             Sign up
                         </Link>

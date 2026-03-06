@@ -36,8 +36,8 @@ export default function RegisterPage() {
 
             // Redirect directly to login on success
             router.push('/login');
-        } catch (err: any) {
-            setError(err.message || 'Failed to register account');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Failed to login');
         } finally {
             setLoading(false);
         }
@@ -51,7 +51,7 @@ export default function RegisterPage() {
                         Create an account
                     </h2>
                     <p className="mt-2 text-center text-sm text-gray-500">
-                        Join us today! It's quickly and easy
+                        Join us today! It&apos;s quickly and easy
                     </p>
                 </div>
 

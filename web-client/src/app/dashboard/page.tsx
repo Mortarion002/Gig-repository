@@ -3,21 +3,36 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+// 1. Add a User interface so TypeScript knows what a 'user' is
+interface User {
+    firstName?: string;
+    email: string;
+}
+
 export default function DashboardPage() {
     const router = useRouter();
-    const [user, setUser] = useState<any>(null);
+    // 2. Add the missing user state
+    const [user, setUser] = useState<User | null>(null);
+    
+    // 3. (Optional) Comment out tasks if you aren't rendering them yet to fix the unused-vars warning
+    // const [tasks, setTasks] = useState<Task[]>([]);
 
     useEffect(() => {
-        // Basic client-side auth check
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
+        const checkAuth = async () => {
+            const token = localStorage.getItem('token');
+            const userData = localStorage.getItem('user');
 
-        if (!token) {
-            router.push('/login');
-        } else if (userData) {
-            setUser(JSON.parse(userData));
-        }
+            if (!token) {
+                router.push('/login');
+            } else if (userData) {
+                setUser(JSON.parse(userData));
+            }
+        };
+
+        // Call the function
+        checkAuth();
     }, [router]);
+     
 
     if (!user) {
         return (
