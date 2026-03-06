@@ -16,12 +16,22 @@ export default function MapScreen() {
 
         // 1. Create the function that calls the backend
         const claimGig = async (taskId: string) => {
+            console.log(`⏳ Attempting to claim gig with ID: ${taskId}`);
             try {
-                await apiClient.put(`/tasks/${taskId}/accept`);
-                Alert.alert('🎉 Success!', 'You claimed the gig. Head to the location!');
-                // Later, you could navigate to an "Active Task" screen here
+                const response = await apiClient.put(`/tasks/${taskId}/accept`);
+                console.log('✅ Backend Response:', response.data);
+
+                // Use setTimeout to fix the Android double-alert bug
+                setTimeout(() => {
+                    Alert.alert('🎉 Success!', 'You claimed the gig. Head to the location!');
+                }, 500);
+
             } catch (error: any) {
-                Alert.alert('Gig Unavailable', error.response?.data?.error || 'Failed to claim gig');
+                console.error('❌ Backend Error:', error.response?.data || error.message);
+
+                setTimeout(() => {
+                    Alert.alert('Gig Unavailable', error.response?.data?.error || 'Failed to claim gig');
+                }, 500);
             }
         };
 
