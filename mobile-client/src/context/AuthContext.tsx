@@ -14,7 +14,7 @@ interface AuthContextType {
     isLoading: boolean;
     login: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
-    register: (name: string, email: string, password: string) => Promise<void>;
+    register: (firstName: string, lastName: string, email: string, password: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -65,12 +65,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const register = async (name: string, email: string, password: string) => {
+    const register = async (firstName: string, lastName: string, email: string, password: string) => {
         try {
             setIsLoading(true);
-            // Automatically assign the PROVIDER role
+            // Send exactly what the Express controller is expecting
             const response = await apiClient.post('/auth/register', {
-                name,
+                firstName,
+                lastName,
                 email,
                 password,
                 role: 'PROVIDER'
