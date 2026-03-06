@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
-import * as Location from 'expo-location';
-import apiClient from '../api/client';
+import { useState, useEffect } from "react";
+import * as Location from "expo-location";
+import * as SecureStore from "expo-secure-store";
+import apiClient from "../api/client";
 
 export const useLocation = () => {
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null,
+  );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isTracking, setIsTracking] = useState<boolean>(false);
 
@@ -14,8 +17,10 @@ export const useLocation = () => {
       try {
         // 1. Request permissions from the OS
         const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          setErrorMsg('Permission to access location was denied. Please enable it in settings.');
+        if (status !== "granted") {
+          setErrorMsg(
+            "Permission to access location was denied. Please enable it in settings.",
+          );
           return;
         }
 
@@ -30,22 +35,26 @@ export const useLocation = () => {
           },
           async (newLocation) => {
             setLocation(newLocation);
-            
+
             // 3. Sync with your Redis backend
             try {
-              // The apiClient automatically attaches the JWT from Phase 5.1!
-              await apiClient.put('/users/location', {
-                latitude: newLocation.coords.latitude,
-                longitude: newLocation.coords.longitude,
-              });
-              console.log('Location synced to Redis backend via Express');
+              const token = await SecureStore.getItemAsync("jwt");
+              // ONLY sync if we actually have a token
+              if (token) {
+                await apiClient.put("/users/location", {
+                  latitude: newLocation.coords.latitude,
+                  longitude: newLocation.coords.longitude,
+                });
+                console.log("Location synced successfully");
+              }
             } catch (apiError) {
-              console.error('Failed to sync location to backend:', apiError);
+              // If it's still a 401, the token might be expired
+              console.error("Sync failed (Unauthorized). Please log in again.");
             }
-          }
+          },
         );
       } catch (err) {
-        setErrorMsg('An error occurred while initializing location tracking.');
+        setErrorMsg("An error occurred while initializing location tracking.");
         console.error(err);
       }
     };
