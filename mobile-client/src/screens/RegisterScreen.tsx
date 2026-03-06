@@ -3,20 +3,24 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import { AuthContext } from '../context/AuthContext';
 
 export default function RegisterScreen({ switchToLogin }: { switchToLogin: () => void }) {
-  const [name, setName] = useState('');
+  // Split the single 'name' state into two:
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const auth = useContext(AuthContext);
 
   const handleRegister = async () => {
-    if (!name || !email || !password) {
+    // Validate all 4 fields
+    if (!firstName || !lastName || !email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
     try {
-      await auth?.register(name, email, password);
+      // Pass the separated names
+      await auth?.register(firstName, lastName, email, password);
     } catch (err: any) {
-      Alert.alert('Registration Failed', err.response?.data?.message || 'Check your connection');
+      Alert.alert('Registration Failed', err.response?.data?.error || 'Check your connection');
     }
   };
 
@@ -26,9 +30,16 @@ export default function RegisterScreen({ switchToLogin }: { switchToLogin: () =>
       
       <TextInput
         style={styles.input}
-        placeholder="Full Name"
-        value={name}
-        onChangeText={setName}
+        placeholder="First Name"
+        value={firstName}
+        onChangeText={setFirstName}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Last Name"
+        value={lastName}
+        onChangeText={setLastName}
       />
 
       <TextInput
