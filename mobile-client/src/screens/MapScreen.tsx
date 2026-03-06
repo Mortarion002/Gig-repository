@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import { WebView } from 'react-native-webview'; // We import WebView instead of MapView
 import { useLocation } from '../hooks/useLocation';
 import { useSocket } from '../hooks/useSocket';
 import { AuthContext } from '../context/AuthContext';
@@ -11,14 +11,11 @@ export default function MapScreen() {
     const { socket, isConnected } = useSocket();
     const auth = useContext(AuthContext);
 
-    // New State to hold the provider's current active gig
     const [activeGig, setActiveGig] = useState<any>(null);
 
-    // Function to fetch the provider's accepted gigs
     const fetchActiveGig = async () => {
         try {
             const response = await apiClient.get('/tasks/my-gigs');
-            // If they have tasks, just grab the first one for now
             if (response.data.tasks && response.data.tasks.length > 0) {
                 setActiveGig(response.data.tasks[0]);
             } else {
@@ -29,7 +26,6 @@ export default function MapScreen() {
         }
     };
 
-    // Fetch active gig when the map first loads
     useEffect(() => {
         fetchActiveGig();
     }, []);
@@ -40,10 +36,9 @@ export default function MapScreen() {
         const claimGig = async (taskId: string) => {
             try {
                 await apiClient.put(`/tasks/${taskId}/accept`);
-                // Wait 500ms for Android Alert bug, then show success and refresh UI
                 setTimeout(() => {
                     Alert.alert('🎉 Success!', 'You claimed the gig. Head to the location!');
-                    fetchActiveGig(); // Instantly refresh the UI to show the new card
+                    fetchActiveGig(); 
                 }, 500);
             } catch (error: any) {
                 setTimeout(() => {
@@ -69,13 +64,12 @@ export default function MapScreen() {
         };
     }, [isConnected]);
 
-    // Function to finish the job
     const handleCompleteGig = async () => {
         if (!activeGig) return;
         try {
             await apiClient.put(`/tasks/${activeGig.id}/complete`);
             Alert.alert('✅ Job Done!', 'Payment has been processed.');
-            setActiveGig(null); // Clear the card from the screen
+            setActiveGig(null); 
         } catch (error) {
             Alert.alert('Error', 'Could not complete task.');
         }
@@ -90,33 +84,62 @@ export default function MapScreen() {
         );
     }
 
+    // This dynamically generates the HTML for Leaflet based on your state
+    const mapHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+          <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+          <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+          <style>
+              body { padding: 0; margin: 0; }
+              html, body, #map { height: 100%; width: 100vw; }
+          </style>
+      </head>
+      <body>
+          <div id="map"></div>
+          <script>
+              var map = L.map('map', { zoomControl: false }).setView([${location.coords.latitude}, ${location.coords.longitude}], 14);
+              
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  maxZoom: 19,
+                  attribution: '© OpenStreetMap'
+              }).addTo(map);
+
+              // Blue Pin for Provider (You)
+              var providerIcon = L.icon({
+                  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                  iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+              });
+              L.marker([${location.coords.latitude}, ${location.coords.longitude}], {icon: providerIcon}).addTo(map).bindPopup('You are here');
+
+              ${activeGig ? `
+              // Green Pin for the Gig
+              var gigIcon = L.icon({
+                  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+                  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                  iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+              });
+              L.marker([${activeGig.latitude}, ${activeGig.longitude}], {icon: gigIcon}).addTo(map).bindPopup('${activeGig.title}');
+              ` : ''}
+          </script>
+      </body>
+      </html>
+    `;
+
     return (
         <View style={styles.container}>
-            <MapView
+            {/* The WebView renders our Leaflet HTML string! */}
+            <WebView
                 style={styles.map}
-                initialRegion={{
-                    latitude: location.coords.latitude,
-                    longitude: location.coords.longitude,
-                    latitudeDelta: 0.05,
-                    longitudeDelta: 0.05,
-                }}
-                showsUserLocation={true}
-            >
-                {/* If there is an active gig, drop a pin at its location! */}
-                {activeGig && (
-                    <Marker
-                        coordinate={{
-                            latitude: activeGig.latitude,
-                            longitude: activeGig.longitude,
-                        }}
-                        title={activeGig.title}
-                        description={activeGig.address || 'Target Location'}
-                        pinColor="green"
-                    />
-                )}
-            </MapView>
+                originWhitelist={['*']}
+                source={{ html: mapHtml }}
+                scrollEnabled={false}
+                bounces={false}
+            />
 
-            {/* Status & Logout Overlay (Top) */}
             <View style={styles.statusOverlay}>
                 <View style={styles.infoColumn}>
                     <View style={styles.statusRow}>
@@ -134,7 +157,6 @@ export default function MapScreen() {
                 </TouchableOpacity>
             </View>
 
-            {/* Active Gig Card (Bottom) */}
             {activeGig && (
                 <View style={styles.activeGigCard}>
                     <View style={styles.gigHeader}>
@@ -156,7 +178,7 @@ export default function MapScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
+    container: { flex: 1, backgroundColor: '#f3f4f6' },
     map: { width: '100%', height: '100%' },
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     loadingText: { marginTop: 10, fontSize: 16 },
@@ -171,8 +193,6 @@ const styles = StyleSheet.create({
     statusText: { fontSize: 13, fontWeight: '600', color: '#444' },
     logoutButton: { backgroundColor: '#fee2e2', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6 },
     logoutText: { color: '#ef4444', fontWeight: 'bold', fontSize: 12 },
-    
-    // New Styles for the Bottom Card
     activeGigCard: {
         position: 'absolute', bottom: 30, left: 20, right: 20, backgroundColor: 'white',
         padding: 20, borderRadius: 16, elevation: 8, shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 10,
