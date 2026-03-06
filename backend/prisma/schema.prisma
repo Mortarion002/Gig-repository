@@ -1,14 +1,83 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// --- ENUMS ---
+enum Role {
+  CLIENT
+  PROVIDER
+  ADMIN
+}
+
+enum TaskStatus {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// --- MODELS ---
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // Hashed password
+  firstName String
+  lastName  String
+  role      Role     @default(CLIENT)
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tasksPosted   Task[]   @relation("ClientTasks")
+  tasksAssigned Task[]   @relation("ProviderTasks")
+  reviewsGiven  Review[] @relation("ReviewAuthor")
+  reviewsGotten Review[] @relation("ReviewSubject")
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  price       Float
+  status      TaskStatus @default(OPEN)
+  
+  // Location Data (Stored as floats here, but we will use Redis for the actual geo-searching)
+  latitude    Float
+  longitude   Float
+  address     String?
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  clientId    String
+  client      User       @relation("ClientTasks", fields: [clientId], references: [id])
+  
+  providerId  String?    // Nullable because a task starts unassigned
+  provider    User?      @relation("ProviderTasks", fields: [providerId], references: [id])
+
+  review      Review?
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int      // 1 to 5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  taskId    String   @unique
+  task      Task     @relation(fields: [taskId], references: [id])
+
+  authorId  String
+  author    User     @relation("ReviewAuthor", fields: [authorId], references: [id])
+
+  subjectId String
+  subject   User     @relation("ReviewSubject", fields: [subjectId], references: [id])
 }
