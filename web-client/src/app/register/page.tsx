@@ -73,7 +73,7 @@ export default function RegisterPage() {
                                     name="firstName"
                                     type="text"
                                     required
-                                    className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out"
+                                    className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 sm:text-sm transition duration-150 ease-in-out"
                                     placeholder="John"
                                     value={formData.firstName}
                                     onChange={handleChange}
@@ -88,7 +88,7 @@ export default function RegisterPage() {
                                     name="lastName"
                                     type="text"
                                     required
-                                    className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out"
+                                    className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 sm:text-sm transition duration-150 ease-in-out"
                                     placeholder="Doe"
                                     value={formData.lastName}
                                     onChange={handleChange}
@@ -106,7 +106,7 @@ export default function RegisterPage() {
                                 type="email"
                                 autoComplete="email"
                                 required
-                                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out"
+                                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 sm:text-sm transition duration-150 ease-in-out"
                                 placeholder="you@email.com"
                                 value={formData.email}
                                 onChange={handleChange}
@@ -122,7 +122,7 @@ export default function RegisterPage() {
                                 type="password"
                                 autoComplete="new-password"
                                 required
-                                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out"
+                                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-zinc-900 sm:text-sm transition duration-150 ease-in-out"
                                 placeholder="••••••••"
                                 value={formData.password}
                                 onChange={handleChange}
@@ -134,7 +134,7 @@ export default function RegisterPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ease-in-out shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-black hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-900 transition-all duration-200 ease-in-out shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {loading ? (
                                 <span className="flex items-center">
@@ -152,7 +152,7 @@ export default function RegisterPage() {
 
                     <div className="text-sm text-center font-medium text-gray-500">
                         Already have an account?{' '}
-                        <Link href="/login" className="text-blue-600 hover:text-blue-500 hover:underline transition-colors">
+                        <Link href="/login" className="text-black font-semibold hover:text-zinc-600 hover:underline transition-colors">
                             Sign in
                         </Link>
                     </div>

@@ -9,7 +9,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { apiFetch } from '@/lib/apiClient';
 
 // Dynamically import the map so it only renders on the client
-const TaskMap = dynamic(() => import('@/components/TaskMap'), { 
+const TaskMap = dynamic(() => import('@/components/TaskMap'), {
     ssr: false,
     loading: () => <div className="w-full h-full flex items-center justify-center bg-gray-100 animate-pulse rounded-lg">Loading Map...</div>
 });
@@ -30,11 +30,10 @@ interface Task {
 }
 
 export default function DashboardPage() {
-    const [socket, setSocket] = useState<Socket | null>(null);
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [tasks, setTasks] = useState<Task[]>([]);
-    
+    const [socket, setSocket] = useState<Socket | null>(null);
 
     // 1. MOVE THIS UP: Define fetchTasks first
     const fetchTasks = async () => {
@@ -56,7 +55,7 @@ export default function DashboardPage() {
             if (!token) {
                 router.push('/login');
                 return;
-            } 
+            }
 
             if (userData) {
                 setUser(JSON.parse(userData));
@@ -74,9 +73,9 @@ export default function DashboardPage() {
             newSocket.on('new_task_available', (newTaskData) => {
                 toast.success(
                     <div>
-                        <strong>New Gig Available!</strong><br/>
+                        <strong>New Gig Available!</strong><br />
                         {newTaskData.title} - ${newTaskData.price}
-                    </div>, 
+                    </div>,
                     { duration: 6000, position: 'top-right' }
                 );
 
@@ -92,17 +91,13 @@ export default function DashboardPage() {
         return () => {
             if (socket) socket.disconnect();
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router]);
 
     // 3. Initial Load
     useEffect(() => {
         fetchTasks();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => {
-        fetchTasks();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleLogout = () => {
@@ -123,7 +118,7 @@ export default function DashboardPage() {
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
             <Toaster /> {/* Mounts the toast notification system */}
-            
+
             {/* Navbar */}
             <nav className="bg-white border-b border-gray-200 shadow-sm z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -152,7 +147,7 @@ export default function DashboardPage() {
                 <div className="absolute inset-0 z-0">
                     <TaskMap tasks={tasks} />
                 </div>
-                
+
                 {/* Floating Stats Card (Optional UI Flex) */}
                 <div className="absolute bottom-6 left-6 z-10 bg-white/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-gray-200">
                     <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-1">Live Feed</h3>

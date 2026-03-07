@@ -17,6 +17,7 @@
     "react": "19.2.0",
     "react-native": "0.83.2",
     "react-native-maps": "1.26.20",
+    "react-native-webview": "13.16.0",
     "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
